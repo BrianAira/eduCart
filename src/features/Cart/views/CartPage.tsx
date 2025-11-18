@@ -1,51 +1,24 @@
-import { useState, useMemo } from "react";
-import type { CartItem } from "../types/cartItem";
+// import { useMemo } from "react";
 import { CartItemCard } from "../components/CartItem";
 import { OrderSummary } from "../components/OrderSummary";
+import { useAppSelector } from "../../../store/hook";
+import type { CartItem } from "../types/cartItem";
 
-
-// Simulación temporal de productos en carrito
-const mockCart: CartItem[] = [
-  {
-    id: 1,
-    title: "Advanced Mathematics Textbook",
-    price: 49.99,
-    quantity: 2,
-    image: "/src/assets/1.webp",
-  },
-];
 
 export default function CartPage() {
-  const [cart, setCart] = useState<CartItem[]>(mockCart);
+  // const [cart, setCart] = useState<CartItem[]>(mockCart);
+  const cartItems=useAppSelector((state)=>state.cart.items);
 
-  const subtotal = useMemo(
-    () => cart.reduce((acc, item) => acc + item.price * item.quantity, 0),
-    [cart]
-  );
-  const shipping = subtotal > 100 ? 0 : 9.99;
-  const tax = subtotal * 0.08;
-  const total = subtotal + shipping + tax;
-
-  const handleQuantityChange = (id: number, delta: number) => {
-    setCart((prev) =>
-      prev
-        .map((item) =>
-          item.id === id
-            ? { ...item, quantity: Math.max(item.quantity + delta, 0) }
-            : item
-        )
-        .filter((i) => i.quantity > 0)
-    );
-    // TODO: PATCH /cart/{id} {quantity: newValue}
-  };
-
-  const handleRemove = (id: number) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-    // TODO: DELETE /cart/{id}
-  };
+  // const subtotal = useMemo(
+    // () => cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0),
+    // [cartItems]
+  // );
+  // const shipping = subtotal > 100 ? 0 : 9.99;
+  // const tax = subtotal * 0.08;
+  // const total = subtotal + shipping + tax;
 
   return (
-    <main className="flex-grow container mx-auto px-4 py-8">
+    <main className="grow container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-indigo-700 mb-8">
         Your Shopping Cart
       </h1>
@@ -62,13 +35,11 @@ export default function CartPage() {
               <div className="col-span-2 text-right">Total</div>
             </div>
 
-            {cart.length > 0 ? (
-              cart.map((item) => (
+            {cartItems.length > 0 ? (
+              cartItems.map((item:CartItem) => (
                 <CartItemCard
                   key={item.id}
                   item={item}
-                  onQuantityChange={handleQuantityChange}
-                  onRemove={handleRemove}
                 />
               ))
             ) : (
@@ -93,12 +64,7 @@ export default function CartPage() {
 
         
         <div className="lg:w-1/3">
-          <OrderSummary
-            subtotal={subtotal}
-            shipping={shipping}
-            tax={tax}
-            total={total}
-          />
+          <OrderSummary/>
         </div>
       </div>
     </main>

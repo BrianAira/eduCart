@@ -1,14 +1,18 @@
 import { useState } from "react";
 
-import { loginSuccess } from "../redux/authSlice";
+// import { loginSuccess } from "../redux/authSlice";
 
-import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../../store/hook";
-import { api } from "../../../lib/axiosInstance";
+// import { useNavigate } from "react-router-dom";
+// import { useAppDispatch } from "../../../store/hook";
+// import { api } from "../../../lib/axiosInstance";
+import { useRegister } from "../hooks/useAuth";
 
 export default function RegisterPage() {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
+  // const dispatch = useAppDispatch();
+  // const navigate = useNavigate();
+  const register=useRegister();
+
+  // const [isAdmin, setIsAdmin]=useState(false);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -17,22 +21,30 @@ export default function RegisterPage() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+
     setLoading(true);
     setError("");
 
-    try {
-      await api.post("/auth/register", { username, password });
 
-      // Ahora hacemos login automático tras el registro
-      const { data } = await api.post("/auth/login", { username, password });
-      dispatch(loginSuccess({ token: data.access_token, username }));
+    register.mutate({username, password});
 
-      navigate("/"); // Redirigir al home
-    } catch (err: any) {
-      setError(err.response?.data?.detail || "No se pudo registrar");
-    } finally {
-      setLoading(false);
-    }
+    // try {
+    //   await api.post("/auth/register", { username, password });
+
+
+    //   const { data } = await api.post("/auth/login", { username, password });
+    //   dispatch(loginSuccess({ 
+    //     token: data.access_token, 
+    //     username,
+    //     role:data.role }));
+
+    //   navigate("/"); // Redirigir al home
+    // } catch (err: any) {
+    //   setError(err.response?.data?.detail || "No se pudo registrar");
+    // } finally {
+    //   setLoading(false);
+    // }
   };
 
   return (
@@ -64,6 +76,16 @@ export default function RegisterPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
+        {/* <label className="flex items-center mb-4 text-sm">
+        <input
+          type="checkbox"
+          checked={isAdmin}
+          onChange={(e) => setIsAdmin(e.target.checked)}
+          className="mr-2"
+        />
+        Registrar como administrador
+      </label> */}
+
 
         <button
           type="submit"

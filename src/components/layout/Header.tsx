@@ -1,72 +1,98 @@
-import { Link } from "react-router-dom";
+import { NavLink, Link, useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../store/hook";
+import { FaShoppingCart, FaBars, FaTimes } from "react-icons/fa";
+import { useState } from "react";
+import { logout } from "../../features/Auth/redux/authSlice";
 
 export default function Header() {
+  const { isAuthenticated, role } = useAppSelector((state) => state.auth);
+  const totalItems = useAppSelector((state) => state.cart.items);
+  const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+
+  const toggleMenu = () => setIsOpen((prev) => !prev);
+
+  const linkClasses = ({ isActive }: { isActive: boolean }) =>
+    isActive
+      ? "text-yellow-300 font-semibold"
+      : "hover:text-yellow-300 transition-colors duration-200";
+
   return (
-    <header className="bg-gradient-to-r from-indigo-600 to-indigo-500 shadow-md">
+    <header className="bg-linear-to-r from-indigo-600 to-indigo-500 shadow-md">
       <nav className="container mx-auto flex items-center justify-between px-6 py-4 text-white">
-        {/* Logo / Nombre */}
         <Link to="/" className="text-2xl font-bold tracking-wide">
           EduCart
         </Link>
 
-        {/* Links de navegación */}
-        <ul className="hidden md:flex space-x-6 text-sm font-medium">
+        <button className="md:hidden text-white text-2xl" onClick={toggleMenu}>
+          {isOpen ? <FaTimes /> : <FaBars />}
+        </button>
+
+        <ul
+          className={`${
+            isOpen ? "block" : "hidden"
+          } md:flex space-y-4 md:space-y-0 md:space-x-6 text-sm font-medium absolute md:static top-16 left-0 right-0 bg-indigo-600 md:bg-transparent p-6 md:p-0 z-10`}
+        >
           <li>
-            <Link
-              to="/"
-              className="hover:text-yellow-300 transition-colors duration-200"
-            >
+            <NavLink to="/" className={linkClasses}>
               Home
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              to="/products"
-              className="hover:text-yellow-300 transition-colors duration-200"
-            >
+            <NavLink to="/products" className={linkClasses}>
               Products
-            </Link>
+            </NavLink>
           </li>
-          {/* <li>
-            <Link
-              to="/cart"
-              className="hover:text-yellow-300 transition-colors duration-200"
-            >
-              Cart
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/login"
-              className="hover:text-yellow-300 transition-colors duration-200"
-            >
-              Login
-            </Link>
-          </li>
-          <li>
-            <Link
-              to="/register"
-              className="hover:text-yellow-300 transition-colors duration-200"
-            >
-              Register
-            </Link>
-          </li> */}
+
+          {isAuthenticated && role === "admin" && (
+            <li>
+              <NavLink to="/admin/products" className={linkClasses}>
+                Admin Panel
+              </NavLink>
+            </li>
+          )}
+
+          {!isAuthenticated ? (
+            <>
+              <li>
+                <NavLink to="/login" className={linkClasses}>
+                  Login
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/register" className={linkClasses}>
+                  Register
+                </NavLink>
+              </li>
+            </>
+          ) : (
+            <li>
+              <button
+                className="hover:text-yellow-300 transition-colors duration-200"
+                onClick={() => {
+                  dispatch(logout());
+                  navigate("/");
+                }}
+              >
+                Logout
+              </button>
+            </li>
+          )}
         </ul>
 
-        {/* Contador del carrito */}
         <div className="relative hidden md:block">
-          <Link to="/cart" className="hover:text-yellow-300">
-            🛒
-          </Link>
+          <NavLink to="/cart" className="hover:text-yellow-300">
+            <FaShoppingCart size={20} />
+          </NavLink>
           <span
             id="cart-counter"
             className="absolute -top-2 -right-2 bg-yellow-400 text-gray-800 text-xs font-semibold px-2 py-0.5 rounded-full"
           >
-            0
+            {totalItems.length}
           </span>
         </div>
       </nav>
     </header>
   );
 }
-

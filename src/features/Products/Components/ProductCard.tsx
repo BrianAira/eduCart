@@ -1,7 +1,6 @@
-// import { useAppDispatch } from "../../../app/hooks";
-// import { addItem } from "../../cart/state/cartSlice";
 
-import { useAppDispatch } from "../../../store/hook";
+import { useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../../store/hook";
 import { addItem } from "../../Cart/redux/cartSlice";
 
 type ProductCardProps = {
@@ -9,15 +8,19 @@ type ProductCardProps = {
   title: string;
   category: string;
   price: number;
-  id?: number; // opcional si lo pasás
+  id: number; // opcional si lo pasás
 };
 
 export const ProductCard = ({ image, title, category, price, id }: ProductCardProps) => {
   const dispatch = useAppDispatch();
-
+  const navigate=useNavigate();
+  const {isAuthenticated}=useAppSelector((state)=>state.auth)
   const handleAdd = () => {
-    if (!id) return; // si no lo pasaste
-    dispatch(addItem({ id, title, price, image, quantity: 1 }));
+    if (!isAuthenticated){
+      navigate('login');
+      return
+    }  // si no lo pasaste
+    dispatch(addItem({ id,title, price, image, quantity: 1 }));
     // TODO: opcional -> POST /cart/{id}
   };
 
@@ -29,7 +32,7 @@ export const ProductCard = ({ image, title, category, price, id }: ProductCardPr
         <p className="text-sm text-gray-500">{category}</p>
         <p className="text-indigo-600 font-semibold">${price.toFixed(2)}</p>
         <button onClick={handleAdd}
-          className="w-full bg-indigo-600 text-white py-2 rounded-md mt-2 hover:bg-indigo-700 transition-colors">
+          className="w-full bg-indigo-600 text-white py-2 rounded-md mt-2 hover:bg-indigo-700 transition-colors hover:cursor-pointer">
           Add to Cart
         </button>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 // import img1 from "../../../assets/1.webp";
 // import img2 from "../../../assets/2.webp";
 // import img3 from "../../../assets/3.webp";
@@ -14,36 +14,12 @@ export default function ProductsPage() {
   const [selectedCategory, setSelectedCategory] = useState<CategoryOption>("All");
   const [priceRange, setPriceRange] = useState<number>(200);
 
-  const {data:products=[], isLoading, isError, error}=useProducts();
+  const {data:products=[], isLoading, isError, error}=useProducts({
+    category:selectedCategory,
+    maxPrice:priceRange,
+    sort,
+  });
 
- 
-
-  // Filtrado y orden local (luego se reemplazará por API)
-  const filtered = useMemo(() => {
-    let result = [...products];
-
-    if (selectedCategory !== "All") {
-      result = result.filter((p) => p.category === selectedCategory);
-    }
-
-    result = result.filter((p) => p.price <= priceRange);
-
-    switch (sort) {
-      case "price-asc":
-        result.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        result.sort((a, b) => b.price - a.price);
-        break;
-      case "name":
-        result.sort((a, b) => a.title.localeCompare(b.title));
-        break;
-      default:
-        break;
-    }
-
-    return result;
-  }, [products, selectedCategory, priceRange, sort]);
 
   if (isLoading)
     return (
@@ -67,7 +43,7 @@ export default function ProductsPage() {
         </h1>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Filtros laterales */}
+          
           <div className="lg:w-1/4">
             <SideFilter
               selectedCategory={selectedCategory}
@@ -82,17 +58,18 @@ export default function ProductsPage() {
             <SortFilter sort={sort} setSort={setSort} />
 
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {filtered.map((product) => (
+              {products.map((product) => (
                 <ProductCard
                   key={product.id}
                   image={product.image}
                   title={product.title}
                   category={product.category}
                   price={product.price}
+                  id={product.id}
                 />
               ))}
 
-              {filtered.length === 0 && (
+              {products.length === 0 && (
                 <p className="text-gray-500 text-center col-span-full">
                   No products found for this filter.
                 </p>

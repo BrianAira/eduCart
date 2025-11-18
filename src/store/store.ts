@@ -1,6 +1,4 @@
 
-// import authReducer from "../features/auth/redux/authSlice";
-// import cartReducer from "../features/cart/redux/cartSlice";
 import authReducer from "../features/Auth/redux/authSlice"
 import cartReducer from "../features/Cart/redux/cartSlice"
 
